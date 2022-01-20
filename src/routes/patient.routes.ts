@@ -4,6 +4,9 @@ import { getPatientName, getPatientId } from '../controllers/patient.controller'
 const router = Router();
 
 // router.Group("/api/patient/", (router) => {
+    router.get('/', (req, res) => {
+        res.send('nodeJs dentalia profile api');
+    });
     router.get('/api/patient/search/:name', getPatientName);
     router.get('/api/patient/search/id/:patId', getPatientId);
     // router.get('/patient/:id', );

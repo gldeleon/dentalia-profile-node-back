@@ -6,6 +6,6 @@ services:
         container_name: "dentalia-profile-node-back"
         restart: "always"
         ports:
-            - "9001:80"
+            - "9001:9001"
         volumes:
-            - "./dist/:/usr/share/nginx/html"
+            - "./dist/:/usr/src/app"
