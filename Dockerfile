@@ -6,7 +6,7 @@ RUN npm install
 COPY . .
 
 #for typescript
-RUN npm run build 
+#RUN npm run build 
 COPY ormconfig.json ./dist/
 # COPY .env ./dist/
 WORKDIR ./dist
