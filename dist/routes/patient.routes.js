@@ -21,6 +21,7 @@ router.get('/', (req, res) => {
 });
 router.get('/api/patient/search/:name', patient_controller_1.getPatientName);
 router.get('/api/patient/search/id/:patId', patient_controller_1.getPatientId);
+router.get('/api/patient/search/receipt/:sesId', patient_controller_1.getReceiptData);
 // router.get('/patient/:id', );
 // router.post('/patient', );
 // router.put('/patient', );

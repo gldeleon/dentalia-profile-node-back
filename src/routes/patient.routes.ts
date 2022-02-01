@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPatientName, getPatientId } from '../controllers/patient.controller';
+import { getPatientName, getPatientId, getReceiptData } from '../controllers/patient.controller';
 
 const router = Router();
 
@@ -22,6 +22,7 @@ router.use((req, res, next) => {
     });
     router.get('/api/patient/search/:name', getPatientName);
     router.get('/api/patient/search/id/:patId', getPatientId);
+    router.get('/api/patient/search/receipt/:sesId', getReceiptData);
     // router.get('/patient/:id', );
     // router.post('/patient', );
     // router.put('/patient', );

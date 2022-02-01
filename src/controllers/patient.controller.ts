@@ -22,6 +22,7 @@ export const getPatientName = async (req: Request, res: Response): Promise<Respo
             p2.pat_id = p3.pat_id
     WHERE
             p.per_complete like '%`+ patName +`%'
+            AND p.active = 'activo'
             AND p2.pat_active = 'activo'`);
     const sendResponse = {
         "success": true,
@@ -41,6 +42,47 @@ export const getPatientId = async (req: Request, res: Response): Promise<Respons
     const sendResponse = {
         "success": true,
         "data": patientData,
+        "message": "ok"
+    };
+    return res.json(sendResponse);
+}
+
+
+export const getReceiptData = async (req: Request, res: Response): Promise<Response> => {
+    let session: number = +req.params.sesId;
+    const entityManager = getManager();
+    let receiptData = await entityManager.query(`select                                    
+                                    p2.per_complete as nombre,
+                                    p.pat_id as id,
+                                    -- f.file_number as recibo,
+                                    (select f.file_number from file f 
+                                        left join filereference f2 on f.file_id = f2.file_id 
+                                        where f.id_sesion = `+session+`) as recibo,
+                                    f.file_date as fecha,
+                                    SUM(f2.quantity) as tto,
+                                    t.trt_name as nombreTrt,
+                                    f2.sessprice as precioU,
+                                    f2.discount as descuentoPorcentual,
+                                    ((f2.sessprice * f2.discount)/100) as descuento,
+                                    SUM(f2.payment) as subtotal
+                                from
+                                    file f
+                                left join fileentry f2 on
+                                    f.file_id = f2.file_id
+                                left join patient p on 
+                                    f.pat_id = p.pat_id 
+                                left join person p2 on
+                                    p.person_id = p2.person_id 
+                                left join treatment t on
+                                    f2.trt_id = t.trt_id 
+                                where
+                                    f.id_sesion = (select f2.file_rel_id from file f 
+                                left join filereference f2 on f.file_id = f2.file_id 
+                                where f.id_sesion = `+session+`)
+                                group by f2.trt_id, f2.discount`);
+    const sendResponse = {
+        "success": true,
+        "data": receiptData,
         "message": "ok"
     };
     return res.json(sendResponse);
@@ -86,7 +128,7 @@ async function patDetails(patId: number): Promise<any> {
             p.person_id = t.person_id
     WHERE
             p2.pat_id = `+ patId +`
-            AND a.agr_active = 'activo'
+            -- AND a.agr_active = 'activo'
             -- AND e.email_active = 'activo'
             -- AND t.tel_active = 'activo'
             AND p2.pat_active = 'activo'
