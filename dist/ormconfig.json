@@ -1,0 +1,13 @@
+{
+    "type": "mysql",
+    "host": "201.163.13.72",
+    "port": "3306",
+    "username": "dev_gdeleon",
+    "password": "jedimaster",
+    "database": "dentalia",
+    "syncronize": false,
+    "logging": true,
+    "logger": "file",
+    "entities": ["dist/entity/**/*.ts"],
+    "migrations": ["dist/migrations/**/*.ts"]
+}

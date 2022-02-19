@@ -54,7 +54,21 @@ export const getReceiptData = async (req: Request, res: Response): Promise<Respo
     let receiptData = await entityManager.query(`select                                    
                                     p2.per_complete as nombre,
                                     p.pat_id as id,
-                                    -- f.file_number as recibo,
+                                    (SELECT
+                                        pat_balance
+                                    FROM
+                                        file
+                                    WHERE
+                                        pat_id = f.pat_id 
+                                        AND cli_id <= f.cli_id 
+                                        AND status_id = 1
+                                        AND filetype_id = 1
+                                        AND DATE(file_date) <= f.file_date
+                                    GROUP BY
+                                        file_number
+                                    ORDER BY
+                                        file_id DESC
+                                    LIMIT 1) as balance,
                                     (select f.file_number from file f 
                                         left join filereference f2 on f.file_id = f2.file_id 
                                         where f.id_sesion = `+session+`) as recibo,
