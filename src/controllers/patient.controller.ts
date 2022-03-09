@@ -51,9 +51,10 @@ export const getPatientId = async (req: Request, res: Response): Promise<Respons
 export const getReceiptData = async (req: Request, res: Response): Promise<Response> => {
     let session: number = +req.params.sesId;
     const entityManager = getManager();
-    let receiptData = await entityManager.query(`select                                    
+    const receiptData = await entityManager.query(`select                                    
                                     p2.per_complete as nombre,
                                     p.pat_id as id,
+                                    f.cli_id as cli_id,
                                     (SELECT
                                         pat_balance
                                     FROM
@@ -94,9 +95,42 @@ export const getReceiptData = async (req: Request, res: Response): Promise<Respo
                                 left join filereference f2 on f.file_id = f2.file_id 
                                 where f.id_sesion = `+session+`)
                                 group by f2.trt_id, f2.discount`);
+
+     const {id, cli_id, fecha} = receiptData[0];
+     let date = new Date(fecha)
+     let dd = date.getDate(); 
+     let mm = date.getMonth()+1;
+     let yyyy = date.getFullYear(); 
+     if(dd<10){dd=+`0${dd}`};
+     if(mm<10){mm=+`0${mm}`};
+     let d = yyyy+'-'+mm+'-'+dd;
+    console.info(id, cli_id, d);  
+    const actualBalance = await entityManager.query(`SELECT
+                                file_id,
+                                pat_balance
+                            FROM
+                                file
+                            WHERE
+                                pat_id = ${id}
+                                AND cli_id <= ${cli_id}
+                                AND status_id = 1
+                                AND filetype_id = 1
+                                AND DATE(file_date) <= '${d}'
+                            GROUP BY
+                                file_number
+                            ORDER BY
+                                file_id 
+                            DESC
+                            LIMIT 2`);
+
+    const response = {
+        "receiptData": receiptData,
+        "balanceData": actualBalance
+    }
+
     const sendResponse = {
         "success": true,
-        "data": receiptData,
+        "data": response,
         "message": "ok"
     };
     return res.json(sendResponse);
